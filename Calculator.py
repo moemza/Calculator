@@ -12,52 +12,82 @@ def div(a, b): # Division function
 def mult(a, b): #Multiplication function
     return a * b 
 
+def valid_equation(equation):
+   
+    valid_chars = set("0123456789.+-*/ ")
+    if not equation:  # Check for empty input
+        print("Input cannot be empty.")
+        return False
+
+    # Check for valid characters
+    for char in equation:
+        if char not in valid_chars:
+            print(f"Invalid character '{char}' found in input.")
+            return False
+
+    # Check for consecutive operators or operators at the start/end
+    last_char = ''
+    for char in equation:
+        if char in listop:
+            if last_char in listop:
+                print("Consecutive operators are not allowed.")
+                return False
+            last_char = char
+        else:
+            last_char = ''
+    
+    if equation[0] in listop or equation[-1] in listop:
+        print("Input cannot start or end with an operator.")
+        return False
+
+    return True
+    
+def get_equation():
+    while True:
+        equation = input("Please enter your equation: ")
+        if valid_equation(equation):
+            break
+        print("Please enter a valid equation.")
+    list_equation = []
+    nums = ''
+    for char in equation:
+        if char.isdigit() or char == '.':  # Handle numbers and decimals
+            nums += char
+        else:
+            if nums:
+                list_equation.append(float(nums))  # Add the complete number to the list
+                nums = '' # clears my temporary number string
+            list_equation.append(char)  # Add the operator to the list
+
+    if nums:  # Add the last number if there is any
+        list_equation.append(float(nums))
+    return list_equation
+
 # List of valid operators
-listop = ['+', '-', '*', '/']
-
-# Function to get a valid number from user
-def get_valid_number(prompt):
-    while True:
-        try:
-            return float(input(prompt))
-        except ValueError:
-            print("Invalid input. Please enter a numeric value.")
-
-# Function to get a valid operator from user
-def get_valid_operator(prompt):
-    while True:
-        operator = input(prompt)
-        if operator in listop or operator == '=':
-            return operator
-        print("Invalid operator. Please enter one of: +, -, *, / or =")
+listop = ['*', '/', '+', '-']
 
 # Main calculation loop
 def calculator():
-    num1 = get_valid_number("Please enter your first number: ")
+    equation = get_equation()
+    for operator in listop:
+        while operator in equation:
+            indexi = equation.index(operator)
+            num1 = equation[(indexi-1)]
+            num2 = equation[(indexi+1)]
+            
+            if operator == '/':
+                result = div(num1, num2)
+            elif operator == '*':
+                result = mult(num1, num2)
+            elif operator == '+':
+                result = add(num1, num2)
+            elif operator == '-':
+                result = sub(num1, num2)     
+            equation[indexi - 1: indexi + 2] = [result] 
+            
+    return equation[0]
     
-    while True:
-        operator = get_valid_operator("Please enter an operator (+, -, *, /) or '=' to calculate: ")
-        
-        if operator == '=':
-            print(f"Final result: {num1}")
-            break   # Stops the loop when = sign is entered
-        
-        num2 = get_valid_number("Please enter the next number: ")
-
-        if operator == '+':
-            num1 = add(num1, num2)
-        elif operator == '-':
-            num1 = sub(num1, num2)
-        elif operator == '*':
-            num1 = mult(num1, num2)
-        elif operator == '/':
-            result = div(num1, num2)
-            if result is None:  # Check for division error
-                print("Error: Division by zero!")
-                continue  # Ask for the next input without changing num1
-            num1 = result
-        
-        print(f"Current result is: {num1}")
 
 # Start the calculator
-calculator()
+#calculator()
+print(calculator())
